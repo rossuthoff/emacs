@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: docstring
+# key: doc
+# --
+"""What I do
+
+More info
+
+Args:
+    arg1: x
+
+Returns:
+    what?
+
+Raises:
+    Error:
+
+Attributes:
+    attr1:
+"""

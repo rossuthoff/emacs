@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: fcn_docstring
+# key: fdoc
+# --
+"""What I do
+
+More info
+
+Args:
+    arg1: x
+
+Returns:
+    what?
+
+Raises:
+    Error:
+"""

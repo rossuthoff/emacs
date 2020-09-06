@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: class_docstring
+# key: cdoc
+# --
+"""Summary of class
+
+More info
+
+Attributes:
+    attr1:
+"""
