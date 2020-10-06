@@ -7,8 +7,8 @@
 (require 'package)
 (setq package-enable-at-startup nil) ; dont do it immediately
 (setq package-archives '(("org"       . "http://orgmode.org/elpa/")
-             ("gnu"       . "http://elpa.gnu.org/packages/")
-             ("melpa"     . "https://melpa.org/packages/")
+                         ("gnu"       . "http://elpa.gnu.org/packages/")
+                         ("melpa"     . "https://melpa.org/packages/")
 			 ("Marmalade" . "http://marmalade-repo.org/packages/")
 			 ;("elpy" . "http://jorgenschaefer.github.io/packages/")
 			 ))
@@ -25,43 +25,12 @@
 ;; Always download if not available
 (setq use-package-always-ensure t)
 
-
-
-;(require 'general)
-
-;(use-package org
-;  :ensure t)
-;(require 'server)
-;(when (and (>= emacs-major-version 23)
-;           (equal window-system 'w32))
-;  (defun server-ensure-safe-dir (dir) "Noop" t)) ; Suppress error "directory
-                                                ; ~/.emacs.d/server is unsafe"
-                                                 ; on windows.
-                                        ;(server-start)
-
-(require 'yasnippet)
-(yas-global-mode 1)
-(add-hook 'python-mode-hook '(lambda () (set (make-local-variable 'yas-indent-line) 'fixed)))
-
-;(use-package org :ensure t)
-;(use-package org-journal :ensure t)
-;(setq org-startup-folded nil)
-                                       
+                                     
 
 (use-package which-key 
   :commands which-key-mode
   :config (which-key-mode)
   )
-  
-
-
-;; Projectile  
-(use-package projectile
-  :config
-)
-(projectile-mode +1)
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-
   
   
 ;; Ivy
@@ -108,14 +77,6 @@
 (setq ivy-count-format ""
       ivy-display-style nil
       ivy-minibuffer-faces nil)
-
-
-; Use Enter on a directory to navigate into the directory, not open it with dired.
-;(define-key ivy-minibuffer-map (kbd "C-m") 'ivy-alt-done)
-
-; Let projectile use ivy
-(setq projectile-completion-system 'ivy)
-  
   
   
 (setq explicit-shell-file-name "C:/Program Files/git/bin/bash.exe")
@@ -124,27 +85,6 @@
 (defun git-bash () (interactive)
   (let ((explicit-shell-file-name "C:/Program Files/git/bin/bash"))
     (call-interactively 'shell)))
-
-;; compiling shortcut
-;(global-set-key [(control c) (c)] 'compile-again)
-;(global-set-key [(control c) (r)] 'eval-region)
-
-;(setq compilation-last-buffer nil)
-;(defun compile-again (pfx)
-; 
-; """Run the same compile as the last time.
-
-;If there was no last time, or there is a prefix argument, this acts like
-;M-x compile.
-;"""
-
-; (interactive "p")
-; (if (and (eq pfx 1)
-;	  compilation-last-buffer)
-;     (progn
-;       (set-buffer compilation-last-buffer)
-;       (revert-buffer t t))
-;   (call-interactively 'compile)))
    
 
 (add-to-list 'exec-path "C:/hunspell/bin/")
@@ -155,13 +95,6 @@
 (setq ispell-local-dictionary "en_US") 
 (setq ispell-local-dictionary-alist
       '(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_US") nil utf-8)))
-
-;(add-to-list 'exec-path "C:/Aspell/bin/")
-;(setq ispell-program-name "aspell")
-;(require 'ispell)
-;(setq ispell-dictionary "english")
-;(setq ispell-personal-dictionary "C:/path/to/your/.ispell")
-
 
 (use-package elpy
   :config
@@ -192,10 +125,6 @@
 
 (remove-hook 'flymake-diagnostic-functions 'flymake-proc-legacy-flymake)
 
-	   
-;(use-package ein)
-;(use-package ein-notebook)
-;(use-package ein-subpackages)
 	   
 (use-package tex-site
   :ensure auctex
@@ -286,13 +215,6 @@
 ; (setq auto-mode-alist (append '(("\\.\\(frm\\|bas\\|cls\\|frs\\|vb\\)$" .
 ;                                  visual-basic-mode)) auto-mode-alist))
 
-
-;Magit
-(add-to-list 'exec-path "C:/Program Files/Git/bin")
-(use-package magit
-  :bind (("C-x g" . magit-status))
-  )
-
 								  
 ;; Matlab mode
 ;(setq auto-mode-alist
@@ -322,7 +244,8 @@
   :config   
   (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
   (add-hook 'yaml-mode-hook
-        (lambda ()
+            (lambda ()
+            (setq yaml-indent-offset 4)
             (define-key yaml-mode-map "\C-m" 'newline-and-indent)))
 )
 			
@@ -392,6 +315,11 @@
        )
 
 
+(require 'yasnippet)
+(yas-global-mode 1)
+(add-hook 'python-mode-hook '(lambda () (set (make-local-variable 'yas-indent-line) 'fixed)))
+
+
 (which-key-mode)
 
 (load-theme 'solarized-dark t)
@@ -438,15 +366,6 @@
 (setq coding-system-for-read 'utf-8)	
 (setq coding-system-for-write 'utf-8-unix)
 
-
-;(set-language-environment "UTF-8")
-;(prefer-coding-system 'utf-8-unix)
-;(set-terminal-coding-system 'utf-8-unix)
-;(set-keyboard-coding-system 'utf-8-unix)
-;(set-buffer-file-coding-system 'utf-8-unix)
-;(set-default-coding-systems 'utf-8-unix)  ; use utf-8 by default
-;(setq coding-system-for-read 'utf-8-unix )	
-;(setq coding-system-for-write 'utf-8-unix )
 
 ;;set mouse scrolling
 (setq mouse-wheel-scroll-amount '(0.07))
