@@ -355,7 +355,68 @@
 (scroll-bar-mode -1)
 (setq use-dialog-box nil) ;don't use dialog box
 
+;; Some extra keybindings ;;
 (bind-key "C-z" #'undo) ;make ctrl-z undo instead of minimize
+
+
+(global-set-key (kbd "<M-down>") 'uelpy-nav-move-line-or-region-down)
+(global-set-key (kbd "<M-up>") 'uelpy-nav-move-line-or-region-up)
+
+(defun uelpy-nav-move-line-or-region-down (&optional beg end)
+  "Move the current line or active region down."
+  (interactive
+   (if (use-region-p)
+       (list (region-beginning) (region-end))
+     (list nil nil)))
+  (if beg
+      (uelpy--nav-move-region-vertically beg end 1)
+    (uelpy--nav-move-line-vertically 1)))
+
+(defun uelpy-nav-move-line-or-region-up (&optional beg end)
+  "Move the current line or active region down."
+  (interactive
+   (if (use-region-p)
+       (list (region-beginning) (region-end))
+     (list nil nil)))
+  (if beg
+      (uelpy--nav-move-region-vertically beg end -1)
+    (uelpy--nav-move-line-vertically -1)))
+
+(defun uelpy--nav-move-line-vertically (dir)
+  "Move the current line vertically in direction DIR."
+  (let* ((beg (point-at-bol))
+         (end (point-at-bol 2))
+         (col (current-column))
+         (region (delete-and-extract-region beg end)))
+    (forward-line dir)
+    (save-excursion
+      (insert region))
+    (goto-char (+ (point) col))))
+
+(defun uelpy--nav-move-region-vertically (beg end dir)
+  "Move the current region vertically in direction DIR."
+  (let* ((point-before-mark (< (point) (mark)))
+         (beg (save-excursion
+                (goto-char beg)
+                (point-at-bol)))
+         (end (save-excursion
+                (goto-char end)
+                (if (bolp)
+                    (point)
+                  (point-at-bol 2))))
+         (region (delete-and-extract-region beg end)))
+    (goto-char beg)
+    (forward-line dir)
+    (save-excursion
+      (insert region))
+    (if point-before-mark
+        (set-mark (+ (point)
+                     (length region)))
+      (set-mark (point))
+      (goto-char (+ (point)
+                    (length region))))
+    (setq deactivate-mark nil)))
+
 
 (setq set-language-environment "UTF-8")
 (setq prefer-coding-system 'utf-8)
@@ -399,7 +460,7 @@
  '(cua-read-only-cursor-color "#859900")
  '(custom-safe-themes
    (quote
-    ("00445e6f15d31e9afaa23ed0d765850e9cd5e929be5e8e63b114a3346236c44c" "51ec7bfa54adf5fff5d466248ea6431097f5a18224788d0bd7eb1257a4f7b773" "13a8eaddb003fd0d561096e11e1a91b029d3c9d64554f8e897b2513dbf14b277" "830877f4aab227556548dc0a28bf395d0abe0e3a0ab95455731c9ea5ab5fe4e1" "2809bcb77ad21312897b541134981282dc455ccd7c14d74cc333b6e549b824f3" "7f1d414afda803f3244c6fb4c2c64bea44dac040ed3731ec9d75275b9e831fe5" "8db4b03b9ae654d4a57804286eb3e332725c84d7cdab38463cb6b97d5762ad26" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "a8245b7cc985a0610d71f9852e9f2767ad1b852c2bdea6f4aadc12cce9c4d6d0" default)))
+    ("c433c87bd4b64b8ba9890e8ed64597ea0f8eb0396f4c9a9e01bd20a04d15d358" "00445e6f15d31e9afaa23ed0d765850e9cd5e929be5e8e63b114a3346236c44c" "51ec7bfa54adf5fff5d466248ea6431097f5a18224788d0bd7eb1257a4f7b773" "13a8eaddb003fd0d561096e11e1a91b029d3c9d64554f8e897b2513dbf14b277" "830877f4aab227556548dc0a28bf395d0abe0e3a0ab95455731c9ea5ab5fe4e1" "2809bcb77ad21312897b541134981282dc455ccd7c14d74cc333b6e549b824f3" "7f1d414afda803f3244c6fb4c2c64bea44dac040ed3731ec9d75275b9e831fe5" "8db4b03b9ae654d4a57804286eb3e332725c84d7cdab38463cb6b97d5762ad26" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "a8245b7cc985a0610d71f9852e9f2767ad1b852c2bdea6f4aadc12cce9c4d6d0" default)))
  '(fci-rule-color "#073642")
  '(font-latex-fontify-script nil t)
  '(highlight-changes-colors (quote ("#d33682" "#6c71c4")))
@@ -426,8 +487,8 @@
    (quote
     ("#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36")))
  '(hl-paren-colors (quote ("#2aa198" "#b58900" "#268bd2" "#6c71c4" "#859900")))
- '(ivy-count-format "(%d/%d) ")
- '(ivy-use-virtual-buffers t)
+ '(ivy-count-format "(%d/%d) " t)
+ '(ivy-use-virtual-buffers t t)
  '(ivy-virtual-abbreviate (quote full))
  '(lsp-ui-doc-border "#FFFFEF")
  '(magit-diff-use-overlays nil)
@@ -436,7 +497,7 @@
     ("#dc322f" "#cb4b16" "#b58900" "#546E00" "#B4C342" "#00629D" "#2aa198" "#d33682" "#6c71c4")))
  '(package-selected-packages
    (quote
-    (hl-todo flycheck el-init use-package general auto-package-update ivy counsel swiper projectile magit company-jedi company-auctex elpy markdown-mode yaml-mode auctex auctex-latexmk org org-journal which-key smartparens solarized-theme)))
+    (auctex-lua hl-todo flycheck el-init use-package general auto-package-update ivy counsel swiper projectile magit company-jedi company-auctex elpy markdown-mode yaml-mode auctex auctex-latexmk org org-journal which-key smartparens solarized-theme)))
  '(pos-tip-background-color "#073642")
  '(pos-tip-foreground-color "#93a1a1")
  '(smartrep-mode-line-active-bg (solarized-color-blend "#859900" "#073642" 0.2))
