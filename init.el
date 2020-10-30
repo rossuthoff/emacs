@@ -70,8 +70,12 @@
 
 (use-package flx
   :config
-  (setq ivy-re-builders-alist '((t . ivy--regex-fuzzy)))
-)
+
+  (setq ivy-re-builders-alist
+      '((swiper . ivy--regex-plus)
+        (t      . ivy--regex-fuzzy)))
+  ;(setq ivy-re-builders-alist '((t . ivy--regex-fuzzy)))
+  )
 
 ;; Slim down ivy display
 (setq ivy-count-format ""
@@ -338,8 +342,10 @@
 (setq sentence-end-double-space nil)	; sentence SHOULD end with only a point.
 (setq default-fill-column 80)		; toggle wrapping text at the 80th character
 ;(setq initial-scratch-message " ") ; print a default message in the empty scratch buffer opened at startup
-(global-font-lock-mode 1)
+(require 'font-lock)
 (setq font-lock-maximum-decoration t)
+(global-font-lock-mode 1)
+(global-hi-lock-mode 1)
 
 ;;(let ((font "Operator Mono Book-12"))
 (let ((font "Hack-12"))
