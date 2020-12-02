@@ -63,9 +63,7 @@
   :bind (("C-s" . swiper)
          ("C-r" . swiper))
 )
-		 
-		 
-		 
+	
 ; Let ivy use flx for fuzzy-matching
 
 (use-package flx
@@ -306,7 +304,9 @@
        ;;(hl-todo ((t (:inherit hl-todo :italic t))))
        :hook ((prog-mode . hl-todo-mode)
               (python-mode . hl-todo-mode)
-              (yaml-mode . hl-todo-mode))
+              (yaml-mode . hl-todo-mode)
+              (latex-mode . hl-todo-mode)
+              )
        :config
        (setq hl-todo-highlight-punctuation ":"
              hl-todo-keyword-faces
@@ -325,6 +325,9 @@
 
 
 (which-key-mode)
+
+;; Delete trailing whitespace from buffers
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 (load-theme 'solarized-dark t)
 
@@ -493,8 +496,8 @@
    (quote
     ("#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36")))
  '(hl-paren-colors (quote ("#2aa198" "#b58900" "#268bd2" "#6c71c4" "#859900")))
- '(ivy-count-format "(%d/%d) " t)
- '(ivy-use-virtual-buffers t t)
+ '(ivy-count-format "(%d/%d) ")
+ '(ivy-use-virtual-buffers t)
  '(ivy-virtual-abbreviate (quote full))
  '(lsp-ui-doc-border "#FFFFEF")
  '(magit-diff-use-overlays nil)
