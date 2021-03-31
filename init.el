@@ -323,11 +323,19 @@
 ;; indent-tabs-mode explicitly. makefile-mode already does that, for
 ;; example.
 (setq-default indent-tabs-mode nil)
-;; if indent-tabs-mode is off, untabify before saving
-(add-hook 'before-save-hook
-          (lambda () (if (not indent-tabs-mode)
-                         (untabify (point-min) (point-max)))
-            nil ))
+;;;; if indent-tabs-mode is off, untabify before saving
+;;(add-hook 'before-save-hook
+;;          (lambda () (if (not indent-tabs-mode)
+;;                         (untabify (point-min) (point-max)))
+;;            nil ))
+;;
+;;(defun untabify-except-makefiles ()
+;;  "Replace tabs with spaces except in makefiles."
+;;  (unless (derived-mode-p 'makefile-mode)
+;;    (untabify (point-min) (point-max))))
+;;
+;;(add-hook 'before-save-hook 'untabify-except-makefiles)
+
 
 (load-theme 'solarized-dark t)
 
