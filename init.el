@@ -7,12 +7,17 @@
 (package-initialize)
 (require 'package)
 (setq package-enable-at-startup nil) ; dont do it immediately
-(setq package-archives '(("org"       . "http://orgmode.org/elpa/")
-                         ("gnu"       . "http://elpa.gnu.org/packages/")
-                         ("melpa"     . "https://melpa.org/packages/")
+(setq package-archive-priorities '(("gnu" . 10)
+                                   ("melpa" . 5))
+      package-archives '(("gnu"       . "http://elpa.gnu.org/packages/")
+                         ;;("melpa"     . "https://stable.melpa.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")
                          ;("Marmalade" . "http://marmalade-repo.org/packages/")
                          ;("elpy" . "http://jorgenschaefer.github.io/packages/")
+                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")
                          ))
+
+;;(add-to-list 'package-archives '("nongnu" . "https://elpa.nongnu.org"))
 
 ;; Bootstrap use-package
 (unless (package-installed-p 'use-package)
@@ -25,7 +30,8 @@
 ;; Always download if not available
 (setq use-package-always-ensure t)
 
-
+;;(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+;;(setq package-check-signature nil)
 
 (use-package which-key
   :commands which-key-mode
@@ -81,16 +87,7 @@
       ivy-minibuffer-faces nil)
 
 
-(setq explicit-shell-file-name "C:/Program Files/git/bin/bash.exe")
-(setq explicit-bash.exe-args '("--login" "-i"))
-
-(defun git-bash () (interactive)
-  (let ((explicit-shell-file-name "C:/Program Files/git/bin/bash"))
-    (call-interactively 'shell)))
-
-
-(add-to-list 'exec-path "C:/hunspell/bin/")
-(setq ispell-program-name "hunspell")
+(setq ispell-program-name "aspell")
 ;; "en_US" is key to lookup in `ispell-local-dictionary-alist`.
 ;; Please note it will be passed as default value to hunspell CLI `-d` option
 ;; if you don't manually setup `-d` in `ispell-local-dictionary-alist`
@@ -98,35 +95,22 @@
 (setq ispell-local-dictionary-alist
       '(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_US") nil utf-8)))
 
-(use-package elpy
-  :config
-  (progn
-    (elpy-enable)
 
-    ;;Fixes prompt in IPython new versions
-    (setq python-shell-interpreter "C:\Python\Python38\python"
-                python-shell-interpreter-args " -i"
-                elpy-shell-echo-input nil
-                elpy-shell-echo-output nil
-                elpy-eldoc-show-current-function nil
-                elpy-shell-display-buffer-after-send t
-                )
-        )
-  )
- ;;(remove-hook 'elpy-modules 'elpy-module-flymake)
+(setq-default c-basic-offset 4)
 
-(with-eval-after-load 'python
-  (defun python-shell-completion-native-try ()
-;;    "Return non-nil if can trigger native completion."
-    (let ((python-shell-completion-native-enable t)
-          (python-shell-completion-native-output-timeout
-           python-shell-completion-native-try-output-timeout))
-      (python-shell-completion-native-get-completions
-       (get-buffer-process (current-buffer))
-       nil "_"))))
+;; Tree-sitter: remap python-mode to python-ts-mode (requires grammar install once:
+;;   M-x treesit-install-language-grammar RET python)
+(add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
 
-(remove-hook 'flymake-diagnostic-functions 'flymake-proc-legacy-flymake)
+;; Eglot (built-in since Emacs 29; requires a language server, e.g.: pip3 install pyright)
+(use-package eglot
+  :ensure nil
+  :hook (python-ts-mode . eglot-ensure))
 
+(use-package flycheck
+    :ensure t
+    :config
+    (global-flycheck-mode +1))
 
 (use-package tex-site
   :ensure auctex
@@ -137,7 +121,7 @@
   (setq TeX-save-query nil)
   (setq-default TeX-master nil)
   (setq font-latex-fontify-script nil)
-  (setq doc-view-ghostscript-program "C:/Program Files/gs/gs9.21/bin/gswin64.exe")
+  ;(setq doc-view-ghostscript-program "C:/Program Files/gs/gs9.21/bin/gswin64.exe")
   (setq visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))
  ; (setq TeX-engine 'xetex)
   (setq TeX-PDF-mode t)
@@ -158,32 +142,42 @@
 )))
 
 
-(require 'tex-mik)
-;; Update PDF buffers after successful LaTeX runs
-(add-hook 'TeX-after-TeX-LaTeX-command-finished-hook
-           #'TeX-revert-document-buffer)
+;;(require 'tex-mik)
+;;;; Update PDF buffers after successful LaTeX runs
+;;(add-hook 'TeX-after-TeX-LaTeX-command-finished-hook
+;;           #'TeX-revert-document-buffer)
+
 
 ;; Company for autocomplete
 (use-package company
-  :init (global-company-mode)
+  :ensure t
+  ;;:init (global-company-mode)
   :config
   (progn
     (add-hook 'prog-mode-hook 'company-mode)
-    (setq-default
-     company-backends
-    '(company-auctex
-      company-jedi)
+    (add-to-list 'company-backends 'company-auctex)
     )
-    )
-)
+  )
+
+
+;;;; Company for autocomplete
+;;(use-package company
+;;  :init (global-company-mode)
+;;  :config
+;;  (progn
+;;    (add-hook 'prog-mode-hook 'company-mode)
+;;    (setq-default
+;;    company-backends
+;;    '(company-auctex
+;;      company-jedi)
+;;    )
+;;    )
+;;)
 
 (use-package company-auctex
   :after (:all company (:any auctex tex-site))
   )
 
-(use-package company-jedi
-  :after (:all company (:any python elpy))
-  )
 
 
 ;;HTML CSS
@@ -241,10 +235,13 @@
   (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
   (add-hook 'yaml-mode-hook
             (lambda ()
-            (setq yaml-indent-offset 4)
+            (setq yaml-indent-offset 2)
             (define-key yaml-mode-map "\C-m" 'newline-and-indent)))
 )
 
+
+;; Javascript mode
+(setq js-indent-level 4)
 
 
 ;; TCL mode
@@ -310,7 +307,7 @@
 
 (require 'yasnippet)
 (yas-global-mode 1)
-(add-hook 'python-mode-hook '(lambda () (set (make-local-variable 'yas-indent-line) 'fixed)))
+;;(add-hook 'python-mode-hook '(lambda () (set (make-local-variable 'yas-indent-line) 'fixed)))
 
 
 (which-key-mode)
@@ -324,17 +321,17 @@
 ;; example.
 (setq-default indent-tabs-mode nil)
 ;;;; if indent-tabs-mode is off, untabify before saving
-;;(add-hook 'before-save-hook
-;;          (lambda () (if (not indent-tabs-mode)
-;;                         (untabify (point-min) (point-max)))
-;;            nil ))
+(add-hook 'before-save-hook
+          (lambda () (if (not indent-tabs-mode)
+                         (untabify (point-min) (point-max)))
+            nil ))
 ;;
-;;(defun untabify-except-makefiles ()
-;;  "Replace tabs with spaces except in makefiles."
-;;  (unless (derived-mode-p 'makefile-mode)
-;;    (untabify (point-min) (point-max))))
+;; (defun untabify-except-makefiles ()
+;;   "Replace tabs with spaces except in makefiles."
+;;   (unless (derived-mode-p 'makefile-mode)
+;;     (untabify (point-min) (point-max))))
 ;;
-;;(add-hook 'before-save-hook 'untabify-except-makefiles)
+;; (add-hook 'before-save-hook 'untabify-except-makefiles)
 
 
 (load-theme 'solarized-dark t)
@@ -357,13 +354,13 @@
 (global-hi-lock-mode 1)
 
 ;;(let ((font "Operator Mono Book-13"))
-(let ((font "Hack-12"))
+(let ((font "Hack-13"))
   (set-frame-font font)
   (add-to-list 'default-frame-alist
                `(font . ,font)))
 
 (global-hl-line-mode) ;makes the current line highlighted
-(add-to-list 'default-frame-alist '(fullscreen . maximized)) ;start fullscreen
+;;(add-to-list 'default-frame-alist '(fullscreen . maximized)) ;start fullscreen
 
 ;(menu-bar-mode -1)
 (tool-bar-mode -1)
@@ -468,51 +465,44 @@
  ;; If there is more than one, they won't work right.
  '(ansi-color-names-vector
    ["#073642" "#dc322f" "#859900" "#b58900" "#268bd2" "#d33682" "#2aa198" "#657b83"])
- '(compilation-message-face (quote default))
+ '(c-basic-offset 4 t)
+ '(compilation-message-face 'default)
  '(cua-global-mark-cursor-color "#2aa198")
  '(cua-normal-cursor-color "#839496")
  '(cua-overwrite-cursor-color "#b58900")
  '(cua-read-only-cursor-color "#859900")
  '(custom-safe-themes
-   (quote
-    ("c433c87bd4b64b8ba9890e8ed64597ea0f8eb0396f4c9a9e01bd20a04d15d358" "00445e6f15d31e9afaa23ed0d765850e9cd5e929be5e8e63b114a3346236c44c" "51ec7bfa54adf5fff5d466248ea6431097f5a18224788d0bd7eb1257a4f7b773" "13a8eaddb003fd0d561096e11e1a91b029d3c9d64554f8e897b2513dbf14b277" "830877f4aab227556548dc0a28bf395d0abe0e3a0ab95455731c9ea5ab5fe4e1" "2809bcb77ad21312897b541134981282dc455ccd7c14d74cc333b6e549b824f3" "7f1d414afda803f3244c6fb4c2c64bea44dac040ed3731ec9d75275b9e831fe5" "8db4b03b9ae654d4a57804286eb3e332725c84d7cdab38463cb6b97d5762ad26" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "a8245b7cc985a0610d71f9852e9f2767ad1b852c2bdea6f4aadc12cce9c4d6d0" default)))
+   '("2b0fcc7cc9be4c09ec5c75405260a85e41691abb1ee28d29fcd5521e4fca575b" "7fea145741b3ca719ae45e6533ad1f49b2a43bf199d9afaee5b6135fd9e6f9b8" "fee7287586b17efbfda432f05539b58e86e059e78006ce9237b8732fde991b4c" "4c56af497ddf0e30f65a7232a8ee21b3d62a8c332c6b268c81e9ea99b11da0d3" "c433c87bd4b64b8ba9890e8ed64597ea0f8eb0396f4c9a9e01bd20a04d15d358" "00445e6f15d31e9afaa23ed0d765850e9cd5e929be5e8e63b114a3346236c44c" "51ec7bfa54adf5fff5d466248ea6431097f5a18224788d0bd7eb1257a4f7b773" "13a8eaddb003fd0d561096e11e1a91b029d3c9d64554f8e897b2513dbf14b277" "830877f4aab227556548dc0a28bf395d0abe0e3a0ab95455731c9ea5ab5fe4e1" "2809bcb77ad21312897b541134981282dc455ccd7c14d74cc333b6e549b824f3" "7f1d414afda803f3244c6fb4c2c64bea44dac040ed3731ec9d75275b9e831fe5" "8db4b03b9ae654d4a57804286eb3e332725c84d7cdab38463cb6b97d5762ad26" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "a8245b7cc985a0610d71f9852e9f2767ad1b852c2bdea6f4aadc12cce9c4d6d0" default))
  '(fci-rule-color "#073642")
  '(font-latex-fontify-script nil t)
- '(highlight-changes-colors (quote ("#d33682" "#6c71c4")))
+ '(highlight-changes-colors '("#d33682" "#6c71c4"))
  '(highlight-symbol-colors
    (--map
     (solarized-color-blend it "#002b36" 0.25)
-    (quote
-     ("#b58900" "#2aa198" "#dc322f" "#6c71c4" "#859900" "#cb4b16" "#268bd2"))))
+    '("#b58900" "#2aa198" "#dc322f" "#6c71c4" "#859900" "#cb4b16" "#268bd2")))
  '(highlight-symbol-foreground-color "#93a1a1")
  '(highlight-tail-colors
-   (quote
-    (("#073642" . 0)
+   '(("#073642" . 0)
      ("#546E00" . 20)
      ("#00736F" . 30)
      ("#00629D" . 50)
      ("#7B6000" . 60)
      ("#8B2C02" . 70)
      ("#93115C" . 85)
-     ("#073642" . 100))))
+     ("#073642" . 100)))
  '(hl-bg-colors
-   (quote
-    ("#7B6000" "#8B2C02" "#990A1B" "#93115C" "#3F4D91" "#00629D" "#00736F" "#546E00")))
+   '("#7B6000" "#8B2C02" "#990A1B" "#93115C" "#3F4D91" "#00629D" "#00736F" "#546E00"))
  '(hl-fg-colors
-   (quote
-    ("#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36")))
- '(hl-paren-colors (quote ("#2aa198" "#b58900" "#268bd2" "#6c71c4" "#859900")))
+   '("#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36"))
+ '(hl-paren-colors '("#2aa198" "#b58900" "#268bd2" "#6c71c4" "#859900"))
  '(ivy-count-format "(%d/%d) " t)
  '(ivy-use-virtual-buffers t)
- '(ivy-virtual-abbreviate (quote full))
  '(lsp-ui-doc-border "#FFFFEF")
  '(magit-diff-use-overlays nil)
  '(nrepl-message-colors
-   (quote
-    ("#dc322f" "#cb4b16" "#b58900" "#546E00" "#B4C342" "#00629D" "#2aa198" "#d33682" "#6c71c4")))
+   '("#dc322f" "#cb4b16" "#b58900" "#546E00" "#B4C342" "#00629D" "#2aa198" "#d33682" "#6c71c4"))
  '(package-selected-packages
-   (quote
-    (auctex-lua hl-todo flycheck el-init use-package general auto-package-update ivy counsel swiper projectile magit company-jedi company-auctex elpy markdown-mode yaml-mode auctex auctex-latexmk org org-journal which-key smartparens solarized-theme)))
+   '(adoc-mode gnu-elpa-keyring-update auctex-lua hl-todo flycheck el-init use-package general auto-package-update ivy counsel swiper projectile magit company-jedi company-auctex elpy markdown-mode yaml-mode auctex auctex-latexmk org org-journal which-key smartparens solarized-theme))
  '(pos-tip-background-color "#073642")
  '(pos-tip-foreground-color "#93a1a1")
  '(smartrep-mode-line-active-bg (solarized-color-blend "#859900" "#073642" 0.2))
@@ -521,8 +511,7 @@
  '(vc-annotate-background nil)
  '(vc-annotate-background-mode nil)
  '(vc-annotate-color-map
-   (quote
-    ((20 . "#dc322f")
+   '((20 . "#dc322f")
      (40 . "#c9485ddd1797")
      (60 . "#bf7e73b30bcb")
      (80 . "#b58900")
@@ -539,11 +528,11 @@
      (300 . "#288e98cbafe2")
      (320 . "#27c19460bb87")
      (340 . "#26f38ff5c72c")
-     (360 . "#268bd2"))))
+     (360 . "#268bd2")))
  '(vc-annotate-very-old-color nil)
+ '(warning-suppress-types '((comp)))
  '(weechat-color-list
-   (quote
-    (unspecified "#002b36" "#073642" "#990A1B" "#dc322f" "#546E00" "#859900" "#7B6000" "#b58900" "#00629D" "#268bd2" "#93115C" "#d33682" "#00736F" "#2aa198" "#839496" "#657b83")))
+   '(unspecified "#002b36" "#073642" "#990A1B" "#dc322f" "#546E00" "#859900" "#7B6000" "#b58900" "#00629D" "#268bd2" "#93115C" "#d33682" "#00736F" "#2aa198" "#839496" "#657b83"))
  '(xterm-color-names
    ["#073642" "#dc322f" "#859900" "#b58900" "#268bd2" "#d33682" "#2aa198" "#eee8d5"])
  '(xterm-color-names-bright
@@ -554,5 +543,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(font-latex-math-face ((t (:foreground "#6c71c4"))))
- '(font-latex-script-char-face ((t (:foreground "salmon")))))
+ '(font-latex-math-face ((t (:foreground "chartreuse4"))))
+ '(font-latex-script-char-face ((t (:foreground "salmon"))))
+ '(font-lock-comment-face ((t (:foreground "#6c71c4")))))
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
