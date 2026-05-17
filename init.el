@@ -107,6 +107,11 @@
   :ensure nil
   :hook (python-ts-mode . eglot-ensure))
 
+(use-package python
+  :ensure nil
+  :custom
+  (python-indent-offset 4))
+
 (use-package flycheck
     :ensure t
     :config
