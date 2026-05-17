@@ -110,7 +110,10 @@
 (use-package python
   :ensure nil
   :custom
-  (python-indent-offset 4))
+  (python-indent-offset 4)
+  :bind (:map python-ts-mode-map
+         ("<M-left>"  . python-indent-shift-left)
+         ("<M-right>" . python-indent-shift-right)))
 
 (use-package flycheck
     :ensure t
