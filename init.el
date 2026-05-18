@@ -109,13 +109,33 @@
   :ensure nil
   :hook (python-ts-mode . eglot-ensure))
 
+(defun my-python-shift-left ()
+  (interactive)
+  (let ((beg (if (use-region-p)
+                 (save-excursion (goto-char (region-beginning)) (line-beginning-position))
+               (line-beginning-position)))
+        (end (if (use-region-p)
+                 (save-excursion (goto-char (region-end)) (line-end-position))
+               (line-end-position))))
+    (python-indent-shift-left beg end)))
+
+(defun my-python-shift-right ()
+  (interactive)
+  (let ((beg (if (use-region-p)
+                 (save-excursion (goto-char (region-beginning)) (line-beginning-position))
+               (line-beginning-position)))
+        (end (if (use-region-p)
+                 (save-excursion (goto-char (region-end)) (line-end-position))
+               (line-end-position))))
+    (python-indent-shift-right beg end)))
+
 (use-package python
   :ensure nil
   :custom
   (python-indent-offset 4)
   :bind (:map python-ts-mode-map
-         ("<M-left>"  . python-indent-shift-left)
-         ("<M-right>" . python-indent-shift-right)))
+         ("<M-left>"  . my-python-shift-left)
+         ("<M-right>" . my-python-shift-right)))
 
 (use-package flycheck
     :ensure t
