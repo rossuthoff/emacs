@@ -268,6 +268,8 @@
                 ("\\.rest\\'" . rst-mode)) auto-mode-alist))
 
 
+(use-package adoc-mode)
+
 ;;Markdown mode
 (use-package markdown-mode
   :commands (markdown-mode gfm-mode)
