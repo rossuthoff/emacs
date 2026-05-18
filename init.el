@@ -116,8 +116,10 @@
                    (rust-mode   . rust-ts-mode)))
   (add-to-list 'major-mode-remap-alist mapping))
 
-(add-to-list 'auto-mode-alist '("\\.toml\\'" . toml-ts-mode))
-(add-to-list 'auto-mode-alist '("\\.h\\'"    . c-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.toml\\'"     . toml-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.h\\'"        . c-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.adoc\\.j2\\'" . adoc-mode))
+(add-to-list 'auto-mode-alist '("\\.tex\\.j2\\'"  . latex-mode))
 
 ;; Eglot (built-in since Emacs 29; requires a language server, e.g.: pip3 install pyright)
 (use-package eglot
