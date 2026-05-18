@@ -104,14 +104,16 @@
 (setq treesit-language-source-alist
       '((python "https://github.com/tree-sitter/tree-sitter-python")
         (toml   "https://github.com/ikatyang/tree-sitter-toml")
-        (yaml   "https://github.com/ikatyang/tree-sitter-yaml")
+        (yaml   "https://github.com/tree-sitter-grammars/tree-sitter-yaml")
         (cpp    "https://github.com/tree-sitter/tree-sitter-cpp")
-        (c      "https://github.com/tree-sitter/tree-sitter-c")))
+        (c      "https://github.com/tree-sitter/tree-sitter-c")
+        (rust   "https://github.com/tree-sitter/tree-sitter-rust")))
 
 (dolist (mapping '((python-mode . python-ts-mode)
                    (yaml-mode   . yaml-ts-mode)
                    (c++-mode    . c++-ts-mode)
-                   (c-mode      . c-ts-mode)))
+                   (c-mode      . c-ts-mode)
+                   (rust-mode   . rust-ts-mode)))
   (add-to-list 'major-mode-remap-alist mapping))
 
 (add-to-list 'auto-mode-alist '("\\.toml\\'" . toml-ts-mode))
