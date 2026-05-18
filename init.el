@@ -100,9 +100,22 @@
 
 (setq-default c-basic-offset 4)
 
-;; Tree-sitter: remap python-mode to python-ts-mode (requires grammar install once:
-;;   M-x treesit-install-language-grammar RET python)
-(add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
+;; Tree-sitter grammars — install each with M-x treesit-install-language-grammar
+(setq treesit-language-source-alist
+      '((python "https://github.com/tree-sitter/tree-sitter-python")
+        (toml   "https://github.com/ikatyang/tree-sitter-toml")
+        (yaml   "https://github.com/ikatyang/tree-sitter-yaml")
+        (cpp    "https://github.com/tree-sitter/tree-sitter-cpp")
+        (c      "https://github.com/tree-sitter/tree-sitter-c")))
+
+(dolist (mapping '((python-mode . python-ts-mode)
+                   (yaml-mode   . yaml-ts-mode)
+                   (c++-mode    . c++-ts-mode)
+                   (c-mode      . c-ts-mode)))
+  (add-to-list 'major-mode-remap-alist mapping))
+
+(add-to-list 'auto-mode-alist '("\\.toml\\'" . toml-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.h\\'"    . c-ts-mode))
 
 ;; Eglot (built-in since Emacs 29; requires a language server, e.g.: pip3 install pyright)
 (use-package eglot
