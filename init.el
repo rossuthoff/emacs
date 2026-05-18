@@ -405,6 +405,14 @@
   (project-save-some-buffers t))
 (global-set-key (kbd "C-c r") 'my-project-query-replace-regexp)
 
+(defun my-close-all-buffers ()
+  (interactive)
+  (mapc (lambda (buf)
+          (let ((kill-buffer-query-functions nil))
+            (kill-buffer buf)))
+        (buffer-list)))
+(global-set-key (kbd "C-c k") 'my-close-all-buffers)
+
 ;; Use some nice Elpy shortcuts everywhere
 (global-set-key (kbd "<M-down>") 'uelpy-nav-move-line-or-region-down)
 (global-set-key (kbd "<M-up>") 'uelpy-nav-move-line-or-region-up)
