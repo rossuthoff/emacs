@@ -399,6 +399,7 @@
 
 ;; Some extra keybindings ;;
 (bind-key "C-z" #'undo) ;make ctrl-z undo instead of minimize
+(global-set-key (kbd "C-c r") 'project-query-replace-regexp)
 
 ;; Use some nice Elpy shortcuts everywhere
 (global-set-key (kbd "<M-down>") 'uelpy-nav-move-line-or-region-down)
