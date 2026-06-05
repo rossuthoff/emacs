@@ -104,7 +104,7 @@
 (setq treesit-language-source-alist
       '((python "https://github.com/tree-sitter/tree-sitter-python")
         (toml   "https://github.com/ikatyang/tree-sitter-toml")
-        (yaml   "https://github.com/tree-sitter-grammars/tree-sitter-yaml")
+        (yaml   "https://github.com/tree-sitter-grammars/tree-sitter-yaml" "v0.6.1")
         (cpp    "https://github.com/tree-sitter/tree-sitter-cpp")
         (c      "https://github.com/tree-sitter/tree-sitter-c")
         (rust   "https://github.com/tree-sitter/tree-sitter-rust")))
@@ -124,7 +124,9 @@
 ;; Eglot (built-in since Emacs 29; requires a language server, e.g.: pip3 install pyright)
 (use-package eglot
   :ensure nil
-  :hook (python-ts-mode . eglot-ensure))
+  :hook (python-ts-mode . eglot-ensure)
+  :config
+  (advice-add 'eglot-code-actions-at-mouse :override #'mouse-yank-primary))
 
 (defun my-python-shift-left ()
   (interactive)
@@ -150,9 +152,24 @@
   :ensure nil
   :custom
   (python-indent-offset 4)
+  (python-indent-def-block-scale 1)
+  :hook
+  (python-ts-mode . my-python-ts-fix-error-indent)
   :bind (:map python-ts-mode-map
          ("<M-left>"  . my-python-shift-left)
          ("<M-right>" . my-python-shift-right)))
+
+(defun my-python-ts-fix-error-indent ()
+  "Prepend ERROR-node fallback rules so indentation works with incomplete syntax."
+  (setq-local treesit-simple-indent-rules
+    (mapcar (lambda (entry)
+              (if (eq (car entry) 'python)
+                  `(python
+                    ((node-is "ERROR") parent-bol python-indent-offset)
+                    ((parent-is "ERROR") parent-bol python-indent-offset)
+                    ,@(cdr entry))
+                entry))
+            treesit-simple-indent-rules)))
 
 (use-package flycheck
     :ensure t
