@@ -105,8 +105,8 @@
       '((python "https://github.com/tree-sitter/tree-sitter-python")
         (toml   "https://github.com/ikatyang/tree-sitter-toml")
         (yaml   "https://github.com/tree-sitter-grammars/tree-sitter-yaml" "v0.6.1")
-        (cpp    "https://github.com/tree-sitter/tree-sitter-cpp")
-        (c      "https://github.com/tree-sitter/tree-sitter-c")
+        (cpp    "https://github.com/tree-sitter/tree-sitter-cpp" "v0.23.4")
+        (c      "https://github.com/tree-sitter/tree-sitter-c" "v0.23.4")
         (rust   "https://github.com/tree-sitter/tree-sitter-rust")))
 
 (dolist (mapping '((python-mode . python-ts-mode)
